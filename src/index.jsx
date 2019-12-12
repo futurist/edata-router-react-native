@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { makeAPI, initModel } from './util'
-import { Provider, connect } from 'react-redux'
+// import { Provider, connect } from 'react-redux'
 import { createStore } from 'redux'
 
 export default class EdataRouterClass {
@@ -106,50 +106,50 @@ export default class EdataRouterClass {
       }
     }
 
-    function rootHoc(WrappedComponent) {
-      return props => (
-        <Provider store={store}>
-          <WrappedComponent {...props} />
-        </Provider>
-      )
-    }
+    // function rootHoc(WrappedComponent) {
+    //   return props => (
+    //     <Provider store={store}>
+    //       <WrappedComponent {...props} />
+    //     </Provider>
+    //   )
+    // }
 
-    function connectHoc(hocOptions = {}) {
-      const mapStateToProps = (state, ownProps) => ({})
-      const mapDispatchToProps = (dispatch, ownProps) => {
-        const props = getAPIProps()
-        Object.keys(props).map(apiName => {
-          const service = props[apiName]
-          for (let name in service) {
-            const f = service[name]
-            if (typeof f === 'function') {
-              service[name] = function(...args) {
-                const ret = f.apply(this, args)
-                Promise.resolve(ret).then(d => {
-                  console.log(d, 999)
-                  dispatch({ type: 'action' })
-                })
-                return ret
-              }
-            }
-          }
-        })
-        return props
-      }
-      return connect(
-        mapStateToProps,
-        mapDispatchToProps,
-        null,
-        { pure: false },
-      )
-    }
+    // function connectHoc(hocOptions = {}) {
+    //   const mapStateToProps = (state, ownProps) => ({})
+    //   const mapDispatchToProps = (dispatch, ownProps) => {
+    //     const props = getAPIProps()
+    //     Object.keys(props).map(apiName => {
+    //       const service = props[apiName]
+    //       for (let name in service) {
+    //         const f = service[name]
+    //         if (typeof f === 'function') {
+    //           service[name] = function(...args) {
+    //             const ret = f.apply(this, args)
+    //             Promise.resolve(ret).then(d => {
+    //               console.log(d, 999)
+    //               dispatch({ type: 'action' })
+    //             })
+    //             return ret
+    //           }
+    //         }
+    //       }
+    //     })
+    //     return props
+    //   }
+    //   return connect(
+    //     mapStateToProps,
+    //     mapDispatchToProps,
+    //     null,
+    //     { pure: false },
+    //   )
+    // }
 
     this.allAPI = allAPI
     this.getAPIProps = getAPIProps
     this.apiProps = getAPIProps()
     this.store = store
-    this.connectHoc = connectHoc
-    this.rootHoc = rootHoc
+    // this.connectHoc = connectHoc
+    // this.rootHoc = rootHoc
     this.hoc = hoc
 
     return this

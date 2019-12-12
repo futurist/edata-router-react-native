@@ -24,9 +24,10 @@ const baseConfig = {
 
   externals: {
     react: 'react',
-    'react-dom': 'react-dom',
-    'react-router': 'react-router',
-    'react-router-dom': 'react-router-dom'
+    'react-native': 'react-native',
+    // 'react-dom': 'react-dom',
+    // 'react-router': 'react-router',
+    // 'react-router-dom': 'react-router-dom'
   },
 
   module: {
