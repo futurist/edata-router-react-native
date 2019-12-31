@@ -1,3 +1,10 @@
+<a name="v2.0.7"></a>
+## [v2.0.7](/compare/v2.0.6...v2.0.7) (2019-12-31 15:03:50)
+
+- allow noBody has query  [826c511](/commit/826c511)
+- new build  [3ea6853](/commit/3ea6853)
+
+
 <a name="v2.0.6"></a>
 ## [v2.0.6](/compare/v2.0.5...v2.0.6) (2019-12-31 14:21:49)
 
