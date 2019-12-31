@@ -126,12 +126,13 @@ export function initModel(config, unwrapOptions) {
     })
 }
 
+export function constOrFunction(value) {
+  return isFunction(value) ? value() : value
+}
+
 const REGEX_HTTP_PROTOCOL = /^(https?:)?\/\//i
 
 export function unwrapAPI(unwrapOptions = {}) {
-  const { paramStyle, queryKey, mockKey, debug } = unwrapOptions
-  const ajaxSetting = { ...globalAjaxSetting, ...unwrapOptions.ajaxSetting }
-
   return packer => {
     if (!packer) return
     const { path, root } = packer
@@ -141,11 +142,19 @@ export function unwrapAPI(unwrapOptions = {}) {
       return {
         map: apiConfig => {
           return (query, options = {}) =>
-            Promise.resolve(isFunction(apiConfig) ? apiConfig() : apiConfig).then(apiConfig => {
+            Promise.resolve(isFunction(apiConfig) ? apiConfig(packer) : apiConfig).then(apiConfig => {
+              const { paramStyle, queryKey, mockKey, debug } = unwrapOptions
+              const ajaxSetting = { ...globalAjaxSetting, ...unwrapOptions.ajaxSetting }
               options = options || {}
               const actions = model.unwrap(['_actions', name]) || {}
               const store = model.unwrap(['_store', name]) || {}
-              const actionConfig = { ...ajaxSetting, ...(actions[service] || {}) }
+              let actionService = actions[service]
+              if(isFunction(actionService)) {
+                actionService = {
+                  callback: actionService
+                }
+              }
+              const actionConfig = { ...ajaxSetting, ...actionService }
               let {
                 exec,
                 reducer,
@@ -157,7 +166,7 @@ export function unwrapAPI(unwrapOptions = {}) {
                 afterResponse,
                 errorHandler,
               } = actionConfig
-              let base = actionConfig.base || actions.base
+              let base = constOrFunction(actionConfig.base || actions.base)
               if (debug && !errorHandler) {
                 errorHandler = debugErrorHandler
               }
@@ -236,7 +245,7 @@ export function unwrapAPI(unwrapOptions = {}) {
                 url = url + '?' + qs.stringify(query)
               }
               const controller = new AbortController()
-              timeout = Number(exec.timeout || timeout)
+              timeout = Number(constOrFunction(exec.timeout || timeout))
               let isTimeout = false
               let timeoutId = -1
               let timeoutPromise = new Promise((resolve, reject) => {
@@ -260,9 +269,9 @@ export function unwrapAPI(unwrapOptions = {}) {
                 signal: controller.signal,
                 ...exec,
                 headers: {
-                  ...headers,
-                  ...exec.headers,
-                  ...window.ajaxHeader,
+                  ...constOrFunction(headers),
+                  ...constOrFunction(exec.headers),
+                  ...constOrFunction(window.ajaxHeader),
                 },
                 body: hasBody ? JSON.stringify(query) : undefined,
                 ...options,
