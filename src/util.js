@@ -226,23 +226,34 @@ export function unwrapAPI(unwrapOptions = {}) {
               if (isFunction(param)) {
                 param = param()
               }
+
+              const isBeateStyle = (actionConfig.paramStyle || paramStyle) == 'beatle'
               const method = String(exec.method || 'get').toUpperCase()
               const hasBody = /PUT|POST|PATCH/.test(method)
-              const urlParam = paramStyle === 'beatle' ? options.params : options
+              const urlParam = isBeateStyle ? options.params : options
               const urlObj = parseUrlPart(exec.url)
               urlObj.pathname = replaceParams(
                 urlObj.pathname,
-                ...(paramStyle === 'beatle' ? [options.params, options.options] : [options]),
+                ...(isBeateStyle ? [options.params, options.options] : [options]),
               )
               let url = joinUrlPart(urlObj)
               if (base && !REGEX_HTTP_PROTOCOL.test(url)) {
                 url = joinPath(base + '', url)
               }
-              console.log(base, url)
-
-              query = { ...param, ...query }
+              query = {...param, ...query}
+              let searchString = ''
               if (!hasBody && !isEmpty(query)) {
-                url = url + '?' + qs.stringify(query)
+                searchString = qs.stringify(query)
+              }
+              if(options.query) {
+                let addon = ''
+                if(searchString) {
+                  addon = '&'
+                }
+                searchString += addon + qs.stringify(options.query)
+              }
+              if(searchString) {
+                url = url + '?' + searchString
               }
               const controller = new AbortController()
               timeout = Number(constOrFunction(exec.timeout || timeout))
