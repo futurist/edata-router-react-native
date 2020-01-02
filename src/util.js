@@ -21,7 +21,7 @@ import {
 } from './fetch-parse'
 import MediaType from 'medium-type'
 const WILDCARD_PARSER = [
-  [new MediaType('*/*'), null]
+  [new MediaType("*/*"), null]
 ]
 
 export function noop() {}
@@ -41,7 +41,7 @@ export function joinPath(prev, url) {
 const abortableFetch = 'signal' in new Request('') ? window.fetch : fetch
 
 const defaultHeaders = {
-  'Content-Type': 'application/json; charset=utf-8',
+  'Content-Type': 'application/json; charset=utf-8'
 }
 
 const defaultReplaceParams = {
@@ -100,7 +100,7 @@ export const globalAjaxSetting = {
   beforeRequest: identity,
   getResponse: defaultGetResponse,
   afterResponse: identity,
-  errorHandler: null,
+  errorHandler: null
 }
 
 export function makeAPI(model, res) {
@@ -115,11 +115,11 @@ export function makeAPI(model, res) {
     data._api = data._api || {}
     data._store[namespace] = new EdataBaseClass({
       ...model.store,
-      ...unwrapEData(data._store[namespace]),
+      ...unwrapEData(data._store[namespace])
     })
     data._actions[namespace] = new EdataBaseClass({
       ...model.actions,
-      ...unwrapEData(data._actions[namespace]),
+      ...unwrapEData(data._actions[namespace])
     })
     forEach(res, (value, key) => {
       set(data._api, [namespace, key], value)
@@ -135,11 +135,62 @@ export function makeAPI(model, res) {
 }
 
 export function initModel(config, unwrapOptions) {
-  return data =>
-    edata(data, {
+  return data => {
+    const model = edata(data, {
       unwrapConfig: unwrapAPI(unwrapOptions),
-      ...config,
+      ...config
     })
+    const {
+      getAPIFromRoute
+    } = getAPIFactoryFromModel(model)
+    const apiProps = unwrapOptions.apiProps = getAPIFromRoute({
+      api: ['*']
+    })
+    return {model, apiProps}
+  }
+}
+
+export function getAPIFactoryFromModel(model) {
+  const allAPI = Object.keys((model.get(['_api']) || {}).value || {})
+
+  function expandAPINameItem(val) {
+    let names = [val]
+    if (val instanceof RegExp) {
+      names = allAPI.filter(v => val.test(v))
+    }
+    if (val === '*') {
+      names = allAPI
+    }
+    return names
+  }
+
+  function getAPIFromRoute({
+    api = ['*']
+  } = {}) {
+    const props = {}
+    // const apiObj = model.unwrap(['_api', '_global']) || {}
+    // Object.keys(apiObj).forEach((key) => {
+    //   props[key] = model.unwrap(['_api', '_global', key])
+    // })
+    // props.store = model.unwrap(['_store', '_global']) || {}
+
+    api.forEach(val => {
+      const names = expandAPINameItem(val)
+      names.filter(Boolean).forEach(name => {
+        const services = {}
+        props[name] = services
+        const apiObj = (model.get(['_api', name]) || {}).value || {}
+        Object.keys(apiObj).forEach((key) => {
+          services[key] = model.unwrap(['_api', name, key])
+        })
+        services.store = model.unwrap(['_store', name]) || {}
+      })
+    })
+    return props
+  }
+  return {
+    getAPIFromRoute
+  }
 }
 
 export function constOrFunction(value) {
@@ -148,6 +199,7 @@ export function constOrFunction(value) {
 
 const REGEX_HTTP_PROTOCOL = /^(https?:)?\/\//i
 
+const fakeDomain = 'http://0.0.0.0'
 export function unwrapAPI(unwrapOptions = {}) {
   return packer => {
     if (!packer) return
@@ -166,7 +218,8 @@ export function unwrapAPI(unwrapOptions = {}) {
                 paramStyle,
                 queryKey,
                 mockKey,
-                debug
+                debug,
+                apiProps
               } = unwrapOptions
               const ajaxSetting = {
                 ...globalAjaxSetting,
@@ -237,7 +290,11 @@ export function unwrapAPI(unwrapOptions = {}) {
                 clearTimeout(timeoutId)
                 isFunction(errorHandler) && errorHandler(err)
                 if (fail) {
-                  const ret = fail(store, err)
+                  const ret = fail(store, {
+                    error: err,
+                    props: apiProps,
+                    model
+                  })
                   if (ret === false) {
                     return Promise.reject(err)
                   }
@@ -252,7 +309,9 @@ export function unwrapAPI(unwrapOptions = {}) {
               }
               if (!exec.url) {
                 return onSuccess({
-                  data: query
+                  param: query,
+                  model,
+                  props: apiProps
                 })
               }
 
@@ -360,6 +419,8 @@ export function unwrapAPI(unwrapOptions = {}) {
                     .then(res => {
                       afterResponse(res)
                       return onSuccess({
+                        props: apiProps,
+                        model,
                         response: res,
                         body: res.body,
                         urlParam,

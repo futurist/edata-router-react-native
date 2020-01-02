@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { makeAPI, initModel } from './util'
+import { makeAPI, initModel, getAPIFactoryFromModel } from './util'
 // import { Provider, connect } from 'react-redux'
 import { createStore } from 'redux'
 
@@ -39,52 +39,18 @@ export default class EdataRouterClass {
   }
   run(options = {}) {
     const { data } = this
-    const model = (this.model = window.model = this.makeModel(data))
+    const {model, apiProps} = (this.model = window.model = this.makeModel(data))
 
-    const allAPI = Object.keys((model.get(['_api']) || {}).value || {})
     const reducer = (state, action) => {
       // console.log('reducer', store, action)
     }
     const store = createStore(reducer)
 
-    function expandAPINameItem(val) {
-      let names = [val]
-      if (val instanceof RegExp) {
-        names = allAPI.filter(v => val.test(v))
-      }
-      if (val === '*') {
-        names = allAPI
-      }
-      return names
-    }
-
-    function getAPIProps({ api = ['*'] } = {}) {
-      const props = {}
-      // const apiObj = model.unwrap(['_api', '_global']) || {}
-      // Object.keys(apiObj).forEach((key) => {
-      //   props[key] = model.unwrap(['_api', '_global', key])
-      // })
-      // props.store = model.unwrap(['_store', '_global']) || {}
-
-      api.forEach(val => {
-        const names = expandAPINameItem(val)
-        names.filter(Boolean).forEach(name => {
-          const services = {}
-          props[name] = services
-          const apiObj = (model.get(['_api', name]) || {}).value || {}
-          Object.keys(apiObj).forEach(key => {
-            services[key] = model.unwrap(['_api', name, key])
-          })
-          services.store = model.unwrap(['_store', name]) || {}
-        })
-      })
-      return props
-    }
+    const {getAPIFromRoute: getAPIProps} = getAPIFactoryFromModel(model)
 
     function hoc(WrappedComponent) {
       return props => {
         const [now, redraw] = useState(Date.now())
-        const apiProps = getAPIProps()
         Object.keys(apiProps).map(apiName => {
           const service = apiProps[apiName]
           for (let name in service) {
@@ -146,7 +112,7 @@ export default class EdataRouterClass {
 
     this.allAPI = allAPI
     this.getAPIProps = getAPIProps
-    this.apiProps = getAPIProps()
+    this.apiProps = apiProps
     this.store = store
     // this.connectHoc = connectHoc
     // this.rootHoc = rootHoc
