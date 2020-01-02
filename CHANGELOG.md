@@ -1,3 +1,10 @@
+<a name="v3.0.1"></a>
+## [v3.0.1](/compare/v3.0.0...v3.0.1) (2020-1-2 19:54:46)
+
+- adjust headers priv  [f968f25](/commit/f968f25)
+- new build  [236f35e](/commit/236f35e)
+
+
 <a name="v3.0.0"></a>
 ## [v3.0.0](/compare/v2.0.7...v3.0.0) (2020-1-2 14:36:06)
 
