@@ -1,3 +1,11 @@
+<a name="v3.0.0"></a>
+## [v3.0.0](/compare/v2.0.7...v3.0.0) (2020-1-2 14:36:06)
+
+- actions can invoke other actions  [166e977](/commit/166e977)
+- format document  [b6aee14](/commit/b6aee14)
+- new build  [0d0f5b4](/commit/0d0f5b4)
+
+
 <a name="v2.0.7"></a>
 ## [v2.0.7](/compare/v2.0.6...v2.0.7) (2019-12-31 15:03:50)
 
