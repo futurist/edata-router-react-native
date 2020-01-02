@@ -1,17 +1,28 @@
 import forEach from 'lodash/forEach'
 import set from 'lodash/set'
 import qs from 'qs'
-import edata, { EdataBaseClass } from 'edata'
+import edata, {
+  EdataBaseClass
+} from 'edata'
 import isPOJO from 'is-plain-obj'
 import pathToRegexp from 'path-to-regexp'
 
 // import 'url-polyfill'
 import 'abortcontroller-polyfill/dist/abortcontroller-polyfill-only'
-import { fetch, Headers, Request, Response } from 'react-native/Libraries/Network/fetch'
+import {
+  fetch,
+  Headers,
+  Request,
+  Response
+} from 'react-native/Libraries/Network/fetch'
 
-import { parse as parseResponse } from './fetch-parse'
+import {
+  parse as parseResponse
+} from './fetch-parse'
 import MediaType from 'medium-type'
-const WILDCARD_PARSER = [[new MediaType('*/*'), null]]
+const WILDCARD_PARSER = [
+  [new MediaType('*/*'), null]
+]
 
 export function noop() {}
 
@@ -33,7 +44,10 @@ const defaultHeaders = {
   'Content-Type': 'application/json; charset=utf-8',
 }
 
-const defaultReplaceParams = { encode: noop }
+const defaultReplaceParams = {
+  encode: noop
+}
+
 function replaceParams(url, params, options) {
   return pathToRegexp.compile(url)(params || {}, options)
 }
@@ -53,7 +67,9 @@ export function parseUrlPart(url) {
 // console.log(parseUrlPart('http://10.0.2.2:8081/playground/index.bundle?platform=android&dev=true&minify=false'))
 
 export function joinUrlPart(obj) {
-  const { protocol = '', host = '', pathname = '', query = '', hash = '' } = obj
+  const {
+    protocol = '', host = '', pathname = '', query = '', hash = ''
+  } = obj
   return protocol + host + pathname + (query ? '?' + query : '') + (hash ? '#' + hash : '')
 }
 
@@ -135,7 +151,10 @@ const REGEX_HTTP_PROTOCOL = /^(https?:)?\/\//i
 export function unwrapAPI(unwrapOptions = {}) {
   return packer => {
     if (!packer) return
-    const { path, root } = packer
+    const {
+      path,
+      root
+    } = packer
     const model = root
     const [prefix, name, service] = path
     if (prefix == '_api' && path.length === 3) {
@@ -143,18 +162,29 @@ export function unwrapAPI(unwrapOptions = {}) {
         map: apiConfig => {
           return (query, options = {}) =>
             Promise.resolve(isFunction(apiConfig) ? apiConfig(packer) : apiConfig).then(apiConfig => {
-              const { paramStyle, queryKey, mockKey, debug } = unwrapOptions
-              const ajaxSetting = { ...globalAjaxSetting, ...unwrapOptions.ajaxSetting }
+              const {
+                paramStyle,
+                queryKey,
+                mockKey,
+                debug
+              } = unwrapOptions
+              const ajaxSetting = {
+                ...globalAjaxSetting,
+                ...unwrapOptions.ajaxSetting
+              }
               options = options || {}
               const actions = model.unwrap(['_actions', name]) || {}
               const store = model.unwrap(['_store', name]) || {}
               let actionService = actions[service]
-              if(isFunction(actionService)) {
+              if (isFunction(actionService)) {
                 actionService = {
                   callback: actionService
                 }
               }
-              const actionConfig = { ...ajaxSetting, ...actionService }
+              const actionConfig = {
+                ...ajaxSetting,
+                ...actionService
+              }
               let {
                 exec,
                 reducer,
@@ -175,7 +205,10 @@ export function unwrapAPI(unwrapOptions = {}) {
                   map: v => v,
                 })
               }
-              if (!exec) exec = { ...actionConfig, ...apiConfig }
+              if (!exec) exec = {
+                ...actionConfig,
+                ...apiConfig
+              }
               const success =
                 (callback && callback.success) ||
                 (reducer && reducer.success) ||
@@ -218,7 +251,9 @@ export function unwrapAPI(unwrapOptions = {}) {
                 }
               }
               if (!exec.url) {
-                return onSuccess({ data: query })
+                return onSuccess({
+                  data: query
+                })
               }
 
               let mock = exec[mockKey]
@@ -240,19 +275,22 @@ export function unwrapAPI(unwrapOptions = {}) {
               if (base && !REGEX_HTTP_PROTOCOL.test(url)) {
                 url = joinPath(base + '', url)
               }
-              query = {...param, ...query}
+              query = {
+                ...param,
+                ...query
+              }
               let searchString = ''
               if (!hasBody && !isEmpty(query)) {
                 searchString = qs.stringify(query)
               }
-              if(options.query) {
+              if (options.query) {
                 let addon = ''
-                if(searchString) {
+                if (searchString) {
                   addon = '&'
                 }
                 searchString += addon + qs.stringify(options.query)
               }
-              if(searchString) {
+              if (searchString) {
                 url = url + '?' + searchString
               }
               const controller = new AbortController()
@@ -301,17 +339,17 @@ export function unwrapAPI(unwrapOptions = {}) {
                     Object.assign(store, startStore)
                     model.set(['_store', name], model.of(store))
                   }
-                  let promise = mock
-                    ? Promise.resolve(
-                        isFunction(mock)
-                          ? mock()
-                          : mock instanceof Response
-                          ? mock
-                          : new Response(
-                              isPOJO(mock) || Array.isArray(mock) ? JSON.stringify(mock) : mock,
-                            ),
-                      )
-                    : abortableFetch(url, init)
+                  let promise = mock ?
+                    Promise.resolve(
+                      isFunction(mock) ?
+                      mock() :
+                      mock instanceof Response ?
+                      mock :
+                      new Response(
+                        isPOJO(mock) || Array.isArray(mock) ? JSON.stringify(mock) : mock,
+                      ),
+                    ) :
+                    abortableFetch(url, init)
                   // console.error(url, init)
                   return Promise.race([timeoutPromise, promise])
                     .then(() => {

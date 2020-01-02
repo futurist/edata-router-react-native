@@ -90,7 +90,7 @@ export default class EdataRouterClass {
           for (let name in service) {
             const f = service[name]
             if (typeof f === 'function') {
-              service[name] = function(...args) {
+              service[name] = function (...args) {
                 const ret = f.apply(this, args)
                 Promise.resolve(ret).then(d => {
                   console.log(d, 999)
