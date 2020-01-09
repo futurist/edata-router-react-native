@@ -50,7 +50,8 @@ export default class EdataRouterClass {
   }
   run(options = {}) {
     const { data } = this
-    const {model, apiProps} = (this.model = window.model = this.makeModel(data))
+    const {model, apiProps} = (this.makeModel(data))
+    this.model = window.model = model
 
     const reducer = (state, action) => {
       // console.log('reducer', store, action)
