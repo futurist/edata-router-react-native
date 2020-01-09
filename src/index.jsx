@@ -119,7 +119,6 @@ export default class EdataRouterClass {
     //   )
     // }
 
-    this.allAPI = allAPI
     this.getAPIProps = getAPIProps
     this.props = apiProps
     this.store = store
