@@ -1,3 +1,11 @@
+<a name="v3.0.3"></a>
+## [v3.0.3](/compare/v3.0.2...v3.0.3) (2020-1-9 11:18:06)
+
+- fix: allAPI throw  [89beeab](/commit/89beeab)
+- new build  [5e1d875](/commit/5e1d875)
+- update docs  [ee8ab92](/commit/ee8ab92)
+
+
 <a name="v3.0.2"></a>
 ## [v3.0.2](/compare/v3.0.1...v3.0.2) (2020-1-9 09:16:24)
 
