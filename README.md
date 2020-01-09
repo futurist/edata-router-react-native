@@ -40,8 +40,13 @@ const run = app.run()
 // Use
 run.getAPIProps()
 run.hoc()
-run.store
-run.model
+
+run.props  // 包含所有的API
+run.model  // 全局model
+run.routes  // 全局routes配置
+run.store  // 内部Redux Store
+run.options  // 启动options
+
 
 ```
 

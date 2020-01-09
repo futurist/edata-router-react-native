@@ -18,6 +18,17 @@ export default class EdataRouterClass {
     this.data = initData
     this.name = name
     this.routeMode = routeMode
+    this.options = {
+      initData,
+      name,
+      debug,
+      routeMode,
+      paramStyle,
+      queryKey,
+      mockKey,
+      edataConfig,
+      ajaxConfig,
+    }
     this.makeModel = initModel(edataConfig, {
       ajaxSetting: ajaxConfig,
       debug,
@@ -59,7 +70,6 @@ export default class EdataRouterClass {
               service[name] = function (...args) {
                 const ret = f.apply(this, args)
                 Promise.resolve(ret).then(d => {
-                  console.log(d, 999)
                   redraw(Date.now())
                 })
                 return ret
@@ -67,7 +77,6 @@ export default class EdataRouterClass {
             }
           }
         })
-        console.log(now, 88383)
         return <WrappedComponent {...props} {...apiProps} now={now} />
       }
     }
@@ -112,7 +121,7 @@ export default class EdataRouterClass {
 
     this.allAPI = allAPI
     this.getAPIProps = getAPIProps
-    this.apiProps = apiProps
+    this.props = apiProps
     this.store = store
     // this.connectHoc = connectHoc
     // this.rootHoc = rootHoc
