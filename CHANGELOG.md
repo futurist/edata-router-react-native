@@ -1,3 +1,10 @@
+<a name="v3.0.5"></a>
+## [v3.0.5](/compare/v3.0.4...v3.0.5) (2020-2-15 10:59:31)
+
+- new vbuild  [397783e](/commit/397783e)
+- add exec.jsonapi to remove attributes  [1512c91](/commit/1512c91)
+
+
 <a name="v3.0.4"></a>
 ## [v3.0.4](/compare/v3.0.3...v3.0.4) (2020-1-9 11:39:29)
 
